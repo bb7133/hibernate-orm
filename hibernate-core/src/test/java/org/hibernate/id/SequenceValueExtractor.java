@@ -49,6 +49,9 @@ public class SequenceValueExtractor {
 
 			queryString = "call current value for " + sequenceName;
 		}
+		else if ( dialect instanceof TiDB4Dialect ) {
+			queryString = "select LASTVAL(" + sequenceName + ")";
+		}
 		else {
 			queryString = "select currval('" + sequenceName + "');";
 		}

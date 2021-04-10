@@ -14,6 +14,8 @@ include 'hibernate-testing'
 include 'hibernate-envers'
 include 'hibernate-spatial'
 
+include 'hibernate-tidb4-dialect'
+
 include 'hibernate-java8'
 
 include 'hibernate-osgi'
