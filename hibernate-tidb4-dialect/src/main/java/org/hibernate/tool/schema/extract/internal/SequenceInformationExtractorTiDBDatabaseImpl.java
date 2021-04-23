@@ -27,10 +27,10 @@ public class SequenceInformationExtractorTiDBDatabaseImpl extends SequenceInform
 	// SQL to get metadata from individual sequence
 	private static final String SQL_SEQUENCE_QUERY = "SELECT " +
 					"'%1$s' AS sequence_name, " +
-					"'MIN_VALUE' AS minimum_value, " +
-					"'MAX_VALUE' AS maximum_value, " +
-					"'START' AS start_value, " +
-					"'INCREMENT' AS increment " +
+					"MIN_VALUE AS minimum_value, " +
+					"MAX_VALUE AS maximum_value, " +
+					"START AS start_value, " +
+					"INCREMENT AS increment " +
 					"FROM information_schema.sequences WHERE sequence_name = '%1$s' AND sequence_schema = database()";
 
 	private static final String UNION_ALL =
