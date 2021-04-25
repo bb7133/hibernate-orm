@@ -7,7 +7,8 @@
 
 // build a map of the database settings to use.
 ext {
-        db = project.hasProperty('db') ? project.getProperty('db') : 'h2'
+        // db = project.hasProperty('db') ? project.getProperty('db') : 'h2'
+        db = 'tidb'
         def dbHost = System.getProperty( 'dbHost', 'localhost' )
         dbBundle = [
                 h2 : [
@@ -61,6 +62,13 @@ ext {
                         'jdbc.user'  : 'hibernateormtest',
                         'jdbc.pass'  : 'hibernateormtest',
                         'jdbc.url'   : 'jdbc:mysql://localhost/hibernate_orm_test'
+                ],
+                tidb : [
+                        'db.dialect' : 'org.hibernate.dialect.TiDB40Dialect',
+                        'jdbc.driver': 'com.mysql.jdbc.Driver',
+                        'jdbc.user'  : 'root',
+                        'jdbc.pass'  : '',
+                        'jdbc.url'   : 'jdbc:mysql://127.0.0.1:4000/hibernate_orm_test'
                 ],
                 mysql_docker : [
                         'db.dialect' : 'org.hibernate.dialect.MySQL57Dialect',

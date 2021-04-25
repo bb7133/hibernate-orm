@@ -147,6 +147,11 @@ public class StandardDialectResolverTest extends BaseUnitTestCase {
 		runMySQLDialectTest( 8, 0, MySQL8Dialect.class );
 	}
 
+//	@Test
+//	public void testResolveDialectInternalForTiDB4() {
+//		runDialectTest( "TiDB", "MySQL connector/J", 4, 0, TiDB40Dialect.class );
+//	}
+
 	private static void runMariaDBDialectTest(
 			int majorVersion, int minorVersion, Class<? extends MariaDBDialect> expectedDialect)
 			throws SQLException {
