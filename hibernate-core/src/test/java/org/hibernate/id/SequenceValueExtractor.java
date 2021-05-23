@@ -13,14 +13,7 @@ import java.sql.SQLException;
 
 import org.hibernate.Session;
 import org.hibernate.Transaction;
-import org.hibernate.dialect.AbstractHANADialect;
-import org.hibernate.dialect.DB2Dialect;
-import org.hibernate.dialect.DerbyDialect;
-import org.hibernate.dialect.Dialect;
-import org.hibernate.dialect.HSQLDialect;
-import org.hibernate.dialect.MariaDB103Dialect;
-import org.hibernate.dialect.Oracle8iDialect;
-import org.hibernate.dialect.SQLServer2012Dialect;
+import org.hibernate.dialect.*;
 import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.exception.GenericJDBCException;
 import org.hibernate.jdbc.Work;
@@ -48,15 +41,15 @@ public class SequenceValueExtractor {
 			queryString = "SELECT CONVERT(varchar(200), Current_value) FROM sys.sequences WHERE name = '" + sequenceName + "'";
 		}
 		else if ( dialect instanceof HSQLDialect ) {
-
 			queryString = "call current value for " + sequenceName;
 		}
 		else if ( dialect instanceof AbstractHANADialect ) {
-
 			queryString = "select " + sequenceName + ".currval from sys.dummy";
 		}
 		else if ( dialect instanceof MariaDB103Dialect ) {
-
+			queryString = "select LASTVAL(" + sequenceName + ")";
+		}
+		else if ( dialect instanceof TiDB40Dialect) {
 			queryString = "select LASTVAL(" + sequenceName + ")";
 		}
 		else {
