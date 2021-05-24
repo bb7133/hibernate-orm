@@ -12,6 +12,9 @@ import javax.persistence.EntityNotFoundException;
 import javax.persistence.OptimisticLockException;
 import javax.persistence.PersistenceException;
 
+import org.hibernate.dialect.CUBRIDDialect;
+import org.hibernate.dialect.TiDB40Dialect;
+import org.hibernate.testing.SkipForDialect;
 import org.jboss.logging.Logger;
 import org.junit.Test;
 
@@ -92,6 +95,10 @@ public class ExceptionTest extends BaseEntityManagerFunctionalTestCase {
 	}
 
 	@Test
+	@SkipForDialect(
+			value = TiDB40Dialect.class,
+			comment = "Foreign-key constraint is not supported by TiDB."
+	)
 	public void testConstraintViolationException() throws Exception {
 		EntityManager em = getOrCreateEntityManager();
 		em.getTransaction().begin();

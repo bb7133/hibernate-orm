@@ -8,12 +8,31 @@ package org.hibernate.dialect;
 
 import org.hibernate.LockOptions;
 import org.hibernate.MappingException;
+import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.tool.schema.extract.internal.SequenceInformationExtractorTiDBDatabaseImpl;
 import org.hibernate.tool.schema.extract.spi.SequenceInformationExtractor;
+import org.hibernate.type.StandardBasicTypes;
 
 import java.time.Duration;
 
 public class TiDB40Dialect extends MySQL57Dialect {
+
+    public TiDB40Dialect() {
+        // TiDB implemented 'Window Functions' of MySQL 8, so the following keywords are reserved.
+        registerKeyword("CUME_DIST");
+        registerKeyword("DENSE_RANK");
+        registerKeyword("EXCEPT");
+        registerKeyword("FIRST_VALUE");
+        registerKeyword("GROUPS");
+        registerKeyword("LAG");
+        registerKeyword("LAST_VALUE");
+        registerKeyword("LEAD");
+        registerKeyword("NTH_VALUE");
+        registerKeyword("NTILE");
+        registerKeyword("PERCENT_RANK");
+        registerKeyword("RANK");
+        registerKeyword("ROW_NUMBER");
+    }
 
     private static final String QUERY_SEQUENCES_STRING =
             "SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = database()";
