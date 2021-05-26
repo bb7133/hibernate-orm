@@ -8,10 +8,8 @@ package org.hibernate.dialect;
 
 import org.hibernate.LockOptions;
 import org.hibernate.MappingException;
-import org.hibernate.dialect.function.StandardSQLFunction;
 import org.hibernate.tool.schema.extract.internal.SequenceInformationExtractorTiDBDatabaseImpl;
 import org.hibernate.tool.schema.extract.spi.SequenceInformationExtractor;
-import org.hibernate.type.StandardBasicTypes;
 
 import java.time.Duration;
 
@@ -44,6 +42,11 @@ public class TiDB40Dialect extends MySQL57Dialect {
 
     @Override
     public boolean supportsPooledSequences() {
+        return false;
+    }
+
+    @Override
+    public boolean supportsCascadeDelete() {
         return false;
     }
 

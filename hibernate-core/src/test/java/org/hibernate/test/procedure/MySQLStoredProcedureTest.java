@@ -23,11 +23,13 @@ import javax.persistence.StoredProcedureQuery;
 
 import org.hibernate.Session;
 import org.hibernate.dialect.MySQL5Dialect;
+import org.hibernate.dialect.TiDB40Dialect;
 import org.hibernate.jdbc.Work;
 import org.hibernate.jpa.test.BaseEntityManagerFunctionalTestCase;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
+import org.hibernate.testing.SkipForDialect;
 import org.hibernate.type.StringType;
 
 import org.hibernate.testing.RequiresDialect;
@@ -46,6 +48,7 @@ import static org.junit.Assert.fail;
  * @author Vlad Mihalcea
  */
 @RequiresDialect(MySQL5Dialect.class)
+@SkipForDialect(value = TiDB40Dialect.class, comment = "Stored procedure is not supported by TiDB.")
 public class MySQLStoredProcedureTest extends BaseEntityManagerFunctionalTestCase {
 
 	@Override
