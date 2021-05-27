@@ -59,9 +59,9 @@ ext {
                 mysql : [
                         'db.dialect' : 'org.hibernate.dialect.MySQL57Dialect',
                         'jdbc.driver': 'com.mysql.jdbc.Driver',
-                        'jdbc.user'  : 'hibernateormtest',
-                        'jdbc.pass'  : 'hibernateormtest',
-                        'jdbc.url'   : 'jdbc:mysql://localhost/hibernate_orm_test'
+                        'jdbc.user'  : 'root',
+                        'jdbc.pass'  : '',
+                        'jdbc.url'   : 'jdbc:mysql://127.0.0.1:3306/hibernate_orm_test?useSSL=false'
                 ],
                 tidb : [
                         'db.dialect' : 'org.hibernate.dialect.TiDB40Dialect',

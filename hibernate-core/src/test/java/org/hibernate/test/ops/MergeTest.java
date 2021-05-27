@@ -11,6 +11,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.dialect.TiDB40Dialect;
 import org.junit.Test;
 
 import org.hibernate.Hibernate;
@@ -37,6 +38,10 @@ import static org.junit.Assert.fail;
  * @author Gavin King
  */
 @RequiresDialectFeature(DialectChecks.SupportsNoColumnInsert.class)
+@SkipForDialect(
+		value = TiDB40Dialect.class,
+		comment = "TiDB do not support foreign key."
+)
 public class MergeTest extends AbstractOperationTestCase {
 	@Test
 	public void testMergeStaleVersionFails() throws Exception {
