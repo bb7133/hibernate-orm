@@ -53,7 +53,7 @@ ext {
                 ],
                 tidb : [
                         'db.dialect' : 'org.hibernate.dialect.TiDB4Dialect',
-                        'jdbc.driver': 'org.mysql.jdbc.Driver',
+                        'jdbc.driver': 'com.mysql.jdbc.Driver',
                         'jdbc.user'  : 'root',
                         'jdbc.pass'  : '',
                         'jdbc.url'   : 'jdbc:mysql://127.0.0.1:4000/hibernate_orm_test'
