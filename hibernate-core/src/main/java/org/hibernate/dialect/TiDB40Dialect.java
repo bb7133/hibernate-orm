@@ -42,7 +42,7 @@ public class TiDB40Dialect extends MySQL57Dialect {
 
     @Override
     public boolean supportsPooledSequences() {
-        return false;
+        return true;
     }
 
     @Override
