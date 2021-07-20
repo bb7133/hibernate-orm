@@ -6,11 +6,11 @@
  */
 package org.hibernate.dialect;
 
-import org.hibernate.query.FetchClauseType;
+import org.hibernate.LockOptions;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.query.ComparisonOperator;
 import org.hibernate.sql.ast.spi.AbstractSqlAstTranslator;
 import org.hibernate.sql.ast.tree.Statement;
-import org.hibernate.sql.ast.tree.cte.CteMaterialization;
 import org.hibernate.sql.ast.tree.cte.CteStatement;
 import org.hibernate.sql.ast.tree.expression.Expression;
 import org.hibernate.sql.ast.tree.expression.Literal;
@@ -22,13 +22,14 @@ import org.hibernate.sql.ast.tree.select.QuerySpec;
 import org.hibernate.sql.exec.spi.JdbcOperation;
 
 /**
- * A SQL AST translator for PostgreSQL.
+ * A SQL AST translator for TiDB.
  *
  * @author Christian Beikov
+ * @author Cong Wang
  */
-public class PostgreSQLSqlAstTranslator<T extends JdbcOperation> extends AbstractSqlAstTranslator<T> {
+public class TiDBSqlAstTranslator<T extends JdbcOperation> extends AbstractSqlAstTranslator<T> {
 
-	public PostgreSQLSqlAstTranslator(SessionFactoryImplementor sessionFactory, Statement statement) {
+	public TiDBSqlAstTranslator(SessionFactoryImplementor sessionFactory, Statement statement) {
 		super( sessionFactory, statement );
 	}
 
@@ -42,32 +43,10 @@ public class PostgreSQLSqlAstTranslator<T extends JdbcOperation> extends Abstrac
 		booleanExpressionPredicate.getExpression().accept( this );
 	}
 
-	@Override
-	protected void renderMaterializationHint(CteMaterialization materialization) {
-		if ( getDialect().getVersion() >= 1200 ) {
-			if ( materialization == CteMaterialization.NOT_MATERIALIZED ) {
-				appendSql( "not " );
-			}
-			appendSql( "materialized " );
-		}
-	}
-
-	@Override
-	public boolean supportsFilterClause() {
-		return getDialect().getVersion() >= 940;
-	}
-
-	@Override
-	protected String getForShare(int timeoutMillis) {
-		return " for share";
-	}
-
 	protected boolean shouldEmulateFetchClause(QueryPart queryPart) {
 		// Check if current query part is already row numbering to avoid infinite recursion
-		if ( getQueryPartForRowNumbering() == queryPart || isRowsOnlyFetchClauseType( queryPart ) ) {
-			return false;
-		}
-		return !getDialect().supportsFetchClause( queryPart.getFetchClauseType() );
+		return useOffsetFetchClause( queryPart ) && getQueryPartForRowNumbering() != queryPart
+				&& getDialect().supportsWindowFunctions() && !isRowsOnlyFetchClauseType( queryPart );
 	}
 
 	@Override
@@ -93,57 +72,71 @@ public class PostgreSQLSqlAstTranslator<T extends JdbcOperation> extends Abstrac
 	@Override
 	public void visitOffsetFetchClause(QueryPart queryPart) {
 		if ( !isRowNumberingCurrentQueryPart() ) {
-			if ( getDialect().supportsFetchClause( FetchClauseType.ROWS_ONLY ) ) {
-				renderOffsetFetchClause( queryPart, true );
-			}
-			else {
-				renderLimitOffsetClause( queryPart );
-			}
+			renderCombinedLimitClause( queryPart );
 		}
 	}
 
 	@Override
 	protected void renderSearchClause(CteStatement cte) {
-		// PostgreSQL does not support this, but it's just a hint anyway
+		// TiDB does not support this, but it's just a hint anyway
 	}
 
 	@Override
 	protected void renderCycleClause(CteStatement cte) {
-		// PostgreSQL does not support this, but it can be emulated
+		// TiDB does not support this, but it can be emulated
+	}
+
+	@Override
+	protected void renderComparison(Expression lhs, ComparisonOperator operator, Expression rhs) {
+		renderComparisonDistinctOperator( lhs, operator, rhs );
 	}
 
 	@Override
 	protected void renderPartitionItem(Expression expression) {
-		// We render an empty group instead of literals as some DBs don't support grouping by literals
-		// Note that integer literals, which refer to select item positions, are handled in #visitGroupByClause
 		if ( expression instanceof Literal ) {
-			if ( getDialect().getVersion() >= 950 ) {
-				appendSql( "()" );
-			}
-			else {
-				appendSql( "(select 1" );
-				appendSql( getFromDualForSelectOnly() );
-				appendSql( ')' );
-			}
+			appendSql( "'0'" );
 		}
 		else if ( expression instanceof Summarization ) {
 			Summarization summarization = (Summarization) expression;
-			if ( getDialect().getVersion() >= 950 ) {
-				appendSql( summarization.getKind().sqlText() );
-				appendSql( OPEN_PARENTHESIS );
-				renderCommaSeparated( summarization.getGroupings() );
-				appendSql( CLOSE_PARENTHESIS );
-			}
-			else {
-				// This could theoretically be emulated by rendering all grouping variations of the query and
-				// connect them via union all but that's probably pretty inefficient and would have to happen
-				// on the query spec level
-				throw new UnsupportedOperationException( "Summarization is not supported by DBMS!" );
-			}
+			renderCommaSeparated( summarization.getGroupings() );
+			appendSql( " with " );
+			appendSql( summarization.getKind().sqlText() );
 		}
 		else {
 			expression.accept( this );
 		}
 	}
 
+	@Override
+	public boolean supportsRowValueConstructorSyntaxInSet() {
+		return false;
+	}
+
+	@Override
+	public boolean supportsRowValueConstructorSyntaxInInList() {
+		return getDialect().getVersion() >= 570;
+	}
+
+	@Override
+	protected boolean supportsRowValueConstructorSyntaxInQuantifiedPredicates() {
+		return false;
+	}
+
+	@Override
+	protected String getFromDual() {
+		return " from dual";
+	}
+
+	@Override
+	protected String getForShare(int timeoutMillis) {
+		if ( timeoutMillis == LockOptions.NO_WAIT ) {
+			return getForUpdate();
+		}
+		return " lock in share mode";
+	}
+
+	@Override
+	public TiDBDialect getDialect() {
+		return (TiDBDialect) super.getDialect();
+	}
 }
