@@ -42,7 +42,7 @@ public class MariaDBSqlAstTranslator<T extends JdbcOperation> extends AbstractSq
 	}
 
 	@Override
-	protected String getForShare() {
+	protected String getForShare(int timeoutMillis) {
 		return " lock in share mode";
 	}
 
