@@ -10,13 +10,23 @@ import org.hibernate.LockOptions;
 import org.hibernate.MappingException;
 import org.hibernate.tool.schema.extract.internal.SequenceInformationExtractorTiDBDatabaseImpl;
 import org.hibernate.tool.schema.extract.spi.SequenceInformationExtractor;
+import org.hibernate.dialect.function.SQLFunctionTemplate;
+import org.hibernate.type.StandardBasicTypes;
 
+import java.sql.Types;
 import java.time.Duration;
 
 public class TiDB4Dialect extends MySQL57Dialect {
 
 	private static final String QUERY_SEQUENCES_STRING =
 			"SELECT sequence_name FROM information_schema.sequences WHERE sequence_schema = database()";
+
+	public TiDB4Dialect() {
+		super();
+
+		registerFunction("date_add_interval", new SQLFunctionTemplate(StandardBasicTypes.DATE, "date_add(?1, INTERVAL ?2 ?3)"));
+		registerHibernateType( Types.NULL, StandardBasicTypes.STRING.getName() );
+	}
 
 	@Override
 	public boolean supportsSequences() {
