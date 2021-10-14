@@ -38,6 +38,7 @@ import org.hibernate.boot.registry.StandardServiceRegistry;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.boot.spi.MetadataImplementor;
 import org.hibernate.cfg.AvailableSettings;
+import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.SQLServerDialect;
 import org.hibernate.dialect.SybaseDialect;
 import org.hibernate.dialect.TiDBDialect;
@@ -84,9 +85,9 @@ public class SchemaUpdateTest {
 
 	@Before
 	public void setUp() throws IOException {
-		if(SQLServerDialect.class.isAssignableFrom( Dialect.getDialect().getClass() )
-				|| SybaseDialect.class.isAssignableFrom(Dialect.getDialect().getClass())
-				|| TiDBDialect.class.isAssignableFrom(Dialect.getDialect().getClass())) {
+		if(SQLServerDialect.class.isAssignableFrom( DialectContext.getDialect().getClass() )
+				|| SybaseDialect.class.isAssignableFrom( DialectContext.getDialect().getClass() )
+				|| TiDBDialect.class.isAssignableFrom( DialectContext.getDialect().getClass()) ) {
 			// SQLServerDialect, SybaseDialect and TiDB store case-insensitive quoted identifiers in mixed case,
 			// so the checks at the end of this method won't work.
 			// For TiDB, only 'lower_case_table_names=2' is supported.

@@ -8,6 +8,9 @@ package org.hibernate.dialect;
 
 import org.hibernate.LockOptions;
 import org.hibernate.MappingException;
+import org.hibernate.dialect.sequence.MariaDBSequenceSupport;
+import org.hibernate.dialect.sequence.SequenceSupport;
+import org.hibernate.dialect.sequence.TiDBSequenceSupport;
 import org.hibernate.tool.schema.extract.internal.SequenceInformationExtractorTiDBDatabaseImpl;
 import org.hibernate.engine.jdbc.dialect.spi.DialectResolutionInfo;
 import org.hibernate.tool.schema.extract.spi.SequenceInformationExtractor;
@@ -15,10 +18,10 @@ import org.hibernate.tool.schema.extract.spi.SequenceInformationExtractor;
 import java.sql.DatabaseMetaData;
 import java.time.Duration;
 
-public class TiDBDialect extends MySQL57Dialect {
+public class TiDBDialect extends MySQLDialect {
 
 	public TiDBDialect() {
-		super();
+		super(570);
 
 		registerKeywords();
 	}
@@ -48,54 +51,13 @@ public class TiDBDialect extends MySQL57Dialect {
 	}
 
 	@Override
-	public boolean supportsSequences() {
-		return true;
-	}
-
-	@Override
-	public boolean supportsPooledSequences() {
-		return true;
+	public SequenceSupport getSequenceSupport() {
+		return TiDBSequenceSupport.INSTANCE;
 	}
 
 	@Override
 	public boolean supportsCascadeDelete() {
 		return false;
-	}
-
-	@Override
-	public String getCreateSequenceString(String sequenceName) {
-		return "create sequence " + sequenceName;
-	}
-
-	@Override
-	protected String getCreateSequenceString(String sequenceName, int initialValue, int incrementSize)
-			throws MappingException {
-		final String sequenceString = getCreateSequenceString( sequenceName ) + " start with " + initialValue + " increment by " + incrementSize;
-		// TiDB has defaults for min and max value that don't play well with settings then sign( increment ) != sign( initialValue )
-		if ( incrementSize > 0 && initialValue < 0 ) {
-			return sequenceString + " minvalue " + initialValue;
-		}
-		else if ( incrementSize < 0 && initialValue > 0 ) {
-			return sequenceString + " maxvalue " + initialValue;
-		}
-		else {
-			return sequenceString;
-		}
-	}
-
-	@Override
-	public String getDropSequenceString(String sequenceName) {
-		return "drop sequence " + sequenceName;
-	}
-
-	@Override
-	public String getSequenceNextValString(String sequenceName) {
-		return "select " + getSelectSequenceNextValString( sequenceName );
-	}
-
-	@Override
-	public String getSelectSequenceNextValString(String sequenceName) {
-		return "nextval(" + sequenceName + ")";
 	}
 
 	@Override
@@ -119,6 +81,24 @@ public class TiDBDialect extends MySQL57Dialect {
 		}
 
 		return getForUpdateString();
+	}
+
+	@Override
+	public boolean supportsSkipLocked() {
+		//only supported on MySQL
+		return false;
+	}
+
+	@Override
+	boolean supportsForShare() {
+		//only supported on MySQL
+		return false;
+	}
+
+	@Override
+	boolean supportsAliasLocks() {
+		//only supported on MySQL
+		return false;
 	}
 
 	@Override

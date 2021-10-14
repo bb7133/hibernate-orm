@@ -19,10 +19,12 @@ import java.util.regex.Pattern;
 
 import org.hibernate.Session;
 import org.hibernate.dialect.MySQLDialect;
+import org.hibernate.dialect.TiDBDialect;
 import org.hibernate.procedure.ProcedureCall;
 import org.hibernate.query.procedure.ProcedureParameter;
 import org.hibernate.result.Output;
 import org.hibernate.result.ResultSetOutput;
+import org.hibernate.testing.SkipForDialect;
 import org.hibernate.type.StringType;
 
 import org.hibernate.testing.TestForIssue;
@@ -55,6 +57,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 				Phone.class,
 		}
 )
+@SkipForDialect(value = TiDBDialect.class, comment = "TiDB does not support stored procedure")
 public class MySQLStoredProcedureTest {
 
 	@BeforeEach
