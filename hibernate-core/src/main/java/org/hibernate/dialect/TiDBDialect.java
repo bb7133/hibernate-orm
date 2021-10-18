@@ -33,7 +33,7 @@ public class TiDBDialect extends MySQLDialect {
 
 	public TiDBDialect() {
 		// Let's be conservative and assume people use a 4 byte character set
-		this( 500, 4 );
+		this( 499, 4 );
 	}
 
 	public TiDBDialect(DialectResolutionInfo info) {
