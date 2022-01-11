@@ -1,0 +1,4 @@
+apply plugin: 'java'
+
+group = "hibernate"
+version = "1.0"
